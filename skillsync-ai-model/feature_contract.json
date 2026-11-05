@@ -1,0 +1,20 @@
+{
+  "version": "recorded-outcomes-v2",
+  "target": "completed_on_time",
+  "population": "Customer-confirmed completed bookings; cancellation is a predictor, not a negative completion label.",
+  "features": ["completed_jobs_before", "cancellation_rate_before", "late_rate_before", "avg_response_minutes_before", "avg_rating_before", "complaint_rate_before"],
+  "definitions": {
+    "completed_jobs_before": "Count of customer-confirmed completed bookings in the worker's current source cohort before snapshot capture; ignore aggregate seed counters.",
+    "cancellation_rate_before": "Worker-cancelled bookings / (confirmed completions + worker cancellations). Exclude customer cancellations, pending work and rejections.",
+    "late_rate_before": "Confirmed completions reported after deadline / confirmed completions with a deadline and completion report.",
+    "avg_response_minutes_before": "Mean nonnegative minutes from booking creation to first accepted/rejected event.",
+    "avg_rating_before": "Mean recorded reviews of confirmed completions, across all categories, in the same source cohort.",
+    "complaint_rate_before": "Upheld complaints / (confirmed completions + worker cancellations), excluding bookings with pending complaints. Missing denominator is null."
+  },
+  "missing": "Unknown rates and ratings are null. The model fits median imputation on training data only.",
+  "snapshot": "Capture at booking creation before outcomes; training consumes that immutable snapshot, never rebuilt current profiles.",
+  "category_scoring": "Use category-specific confirmed counts, rating, complaint evidence; reliability features remain worker-wide. Experience is self-reported and worker-wide.",
+  "minimum_training_rows": 100,
+  "minimum_training_workers": 5,
+  "minimum_class_rows": 10
+}

@@ -1,0 +1,6 @@
+﻿@import 'tailwindcss';
+@import '@fontsource-variable/manrope';
+@import './skillsync.css';
+@source '../views/**/*.blade.php';
+@source '../../app/Livewire/**/*.php';
+@theme { --font-sans: 'Manrope Variable', ui-sans-serif, system-ui, sans-serif; }

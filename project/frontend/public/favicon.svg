@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <title>SkillSync</title>
+  <rect width="64" height="64" rx="14" fill="#fff"/>
+  <path d="M28 7h24c7 0 10 9 4 13L43 29 25 19c-4-2-7 0-7 4v9l13 7c3 2 4 4 4 8L17 37C5 31 5 20 15 13Z" fill="#4c36e9"/>
+  <path d="M36 57H12c-7 0-10-9-4-13l13-9 18 10c4 2 7 0 7-4v-9l-13-7c-3-2-4-4-4-8l18 10c12 6 12 17 2 24Z" fill="#8061f7"/>
+</svg>

@@ -1,0 +1,1 @@
+<livewire:shared.notification-bell />

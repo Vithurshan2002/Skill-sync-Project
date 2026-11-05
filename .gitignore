@@ -1,0 +1,18 @@
+.integration-runtime/
+**/.env
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/node_modules/
+**/vendor/
+**/.runtime/
+**/storage/logs/*
+**/storage/framework/views/*
+**/test-results/
+**/*.sqlite
+**/*.sqlite-shm
+**/*.sqlite-wal
+
+# Optional DistilBERT artifacts; keep the runtime .joblib models tracked.
+/skillsync-ai-model/models/distilbert_training/
+/skillsync-ai-model/models/nlp_distilbert/
