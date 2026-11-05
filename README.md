@@ -39,13 +39,83 @@ If PHP is not on PATH, set `$env:PHP_BINARY = 'C:\php\php.exe'` before using the
 
 ## First setup on another computer
 
+### Install the required software first
+
+These instructions are for a Windows 10/11 x64 laptop. Use a normal PowerShell window for project commands; Windows installers may request administrator permission. A browser and internet connection are needed to download dependencies. VS Code is optional.
+
+Install the following in order:
+
+| Software | Installation steps | Purpose |
+| --- | --- | --- |
+| Git | Download and run [Git for Windows](https://git-scm.com/install/windows). Enable command-line access when the installer asks about PATH. | Clone the repository |
+| Node.js 24.x and npm | Select version 24.x and the Windows x64 MSI on the [Node.js download page](https://nodejs.org/en/download). Keep npm and PATH options enabled. | Build frontend CSS and JavaScript |
+| PHP 8.4 | Follow the PHP steps below before installing Composer. | Run Laravel and Filament |
+| Composer 2 | Run the Windows installer from [Composer's installation guide](https://getcomposer.org/doc/00-intro.md#installation-windows). Select your PHP executable, for example `C:\php\php.exe`. | Install PHP packages |
+| PostgreSQL | Use the installer linked from [PostgreSQL for Windows](https://www.postgresql.org/download/windows/). Install the server and command-line tools; pgAdmin is optional. Keep port 5432, record the password for the `postgres` administrator, and finish installation. Stack Builder add-ons are not required. | Store application data |
+| uv and Python 3.12 | Follow the commands below. uv can install Python, so a separate Python installer is unnecessary for this route. | Install and run backend/AI packages |
+
+#### Configure PHP
+
+Use the [official PHP Windows installation instructions](https://www.php.net/manual/en/install.windows.manual.php). Download the PHP 8.4 x64 Non Thread Safe ZIP linked there, extract it to `C:\php`, and install the matching Microsoft Visual C++ runtime required by that build if prompted.
+
+Copy `php.ini-development` to `php.ini` in that folder. Open `php.ini` in a text editor, set `extension_dir = "ext"`, and enable these existing lines by removing their leading semicolon:
+
+```ini
+extension=curl
+extension=fileinfo
+extension=intl
+extension=mbstring
+extension=openssl
+extension=pdo_sqlite
+extension=sqlite3
+extension=zip
+```
+
+Do not add duplicate settings. The standard PHP build also provides extensions such as DOM, XML and PDO; Composer checks the project's platform requirements during installation.
+
+Add `C:\php` to your **user Path**: search Windows for “Edit environment variables for your account” → select Path → Edit → New → enter `C:\php` → save. Close and reopen PowerShell (and VS Code if using its terminal).
+
+#### Install uv and Python
+
+Run the Windows command from the [official uv installation guide](https://docs.astral.sh/uv/getting-started/installation/):
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+Close and reopen PowerShell so it can find uv. Then install Python using [uv's Python management](https://docs.astral.sh/uv/guides/install-python/):
+
+```powershell
+uv python install 3.12
+uv python find 3.12
+```
+
+#### Verify before cloning
+
+Run each command and confirm it displays a version or configuration information:
+
+```powershell
+git --version
+node --version
+npm.cmd --version
+php --version
+php --ini
+php -m
+composer --version
+uv --version
+uv python find 3.12
+```
+
+Use Node 24.x and PHP 8.4.x for these instructions. Check that `php --ini` loads the file you edited and `php -m` includes the required extensions. If a command is “not recognized”, reopen the terminal and check the installer's PATH configuration before proceeding.
+
+Press Win+R, enter `services.msc`, and find the PostgreSQL service. Confirm its status is **Running**, or start it. The setup script below asks for the password you chose during installation and creates the application's database and restricted role; you do not need to create them manually.
+
 ### Clone from GitHub (Windows / PowerShell)
 
 Install Git alongside the prerequisites below, then clone the whole workspace:
 
 ```powershell
-# Replace this example URL with your actual GitHub repository URL.
-git clone https://github.com/YOUR-USERNAME/YOUR-REPOSITORY.git skillsync
+git clone https://github.com/Vithurshan2002/Skill-sync-Project.git skillsync
 Set-Location skillsync
 $skillSyncRoot = (Get-Location).Path
 ```
@@ -60,20 +130,20 @@ Before publishing, include source code, migrations, environment examples, depend
 
 ### Install dependencies and provision storage
 
-Install PostgreSQL, Python 3.12/3.13, uv, PHP 8.4, Composer 2, Node.js 22.12+ or 24, and npm. PHP requires curl, OpenSSL, intl, mbstring, XML and PDO SQLite. Use your actual workspace path below. Preserve existing environment files and keep credentials private.
+After completing the software installation above, run the following commands in the same terminal used for cloning. Preserve existing environment files and keep credentials private.
 
 ```powershell
-Set-Location 'C:\Users\User\Desktop\test\skill-sync\backend'
-uv sync --locked
-Set-Location 'C:\Users\User\Desktop\test\skillsync-ai-model'
-uv sync --locked
-Set-Location 'C:\Users\User\Desktop\test\skill-sync\frontend'
+Set-Location (Join-Path $skillSyncRoot 'skill-sync/backend')
+uv sync --locked --python 3.12
+Set-Location (Join-Path $skillSyncRoot 'skillsync-ai-model')
+uv sync --locked --python 3.12
+Set-Location (Join-Path $skillSyncRoot 'skill-sync/frontend')
 composer install
 npm.cmd ci
 if (-not (Test-Path -LiteralPath '.env')) {
     Copy-Item -LiteralPath '.env.example' -Destination '.env'
 }
-Set-Location 'C:\Users\User\Desktop\test'
+Set-Location $skillSyncRoot
 & '.\skill-sync\backend\.venv\Scripts\python.exe' .\scripts\setup_integration.py --admin-user postgres
 ```
 
@@ -100,11 +170,11 @@ This checks the existing database identity, preserves its data and refreshes the
 Backend guards reject other database names. The original `skillsync` database is not used. Apply migrations and build assets:
 
 ```powershell
-Set-Location 'C:\Users\User\Desktop\test\skill-sync\backend'
+Set-Location (Join-Path $skillSyncRoot 'skill-sync/backend')
 .\.venv\Scripts\python.exe -m alembic upgrade head
 .\.venv\Scripts\python.exe -m app.cli seed-categories
 .\.venv\Scripts\python.exe -m app.cli create-admin
-Set-Location 'C:\Users\User\Desktop\test\skill-sync\frontend'
+Set-Location (Join-Path $skillSyncRoot 'skill-sync/frontend')
 php artisan config:clear
 php artisan migrate --no-interaction
 php artisan filament:assets
