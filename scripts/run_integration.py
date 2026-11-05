@@ -15,8 +15,8 @@ from dotenv import dotenv_values
 from sqlalchemy import text
 
 ROOT = Path(__file__).resolve().parents[1]
-BACKEND = ROOT / "project" / "backend"
-FRONTEND = ROOT / "project" / "frontend"
+BACKEND = ROOT / "skill-sync" / "backend"
+FRONTEND = ROOT / "skill-sync" / "frontend"
 AI = ROOT / "skillsync-ai-model"
 RUNTIME = ROOT / ".integration-runtime"
 sys.path.insert(0, str(BACKEND))
@@ -62,7 +62,7 @@ def preflight():
         raise RuntimeError("Set frontend FASTAPI_BASE_URL=http://127.0.0.1:8101.")
     php = os.environ.get("PHP_BINARY") or shutil.which("php")
     if not php:
-        php = str(ROOT / "project" / ".runtime" / "php" / "php.exe")
+        php = str(ROOT / "skill-sync" / ".runtime" / "php" / "php.exe")
     ai_python = AI / ".venv" / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
     for path in (Path(php), ai_python, FRONTEND / "public" / "build" / "manifest.json"):
         if not path.is_file():

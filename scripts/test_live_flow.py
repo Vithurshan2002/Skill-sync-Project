@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-BACKEND = ROOT / "project" / "backend"
+BACKEND = ROOT / "skill-sync" / "backend"
 
 if __name__ == "__main__":
     result = subprocess.run(

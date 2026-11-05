@@ -2,7 +2,7 @@
 param([switch]$Check, [switch]$SmokeTest)
 $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
-$BackendPython = Join-Path $ProjectRoot "project\backend\.venv\Scripts\python.exe"
+$BackendPython = Join-Path $ProjectRoot "skill-sync\backend\.venv\Scripts\python.exe"
 if (-not (Test-Path -LiteralPath $BackendPython)) {
     throw "Backend Python environment is missing. Follow README.md."
 }

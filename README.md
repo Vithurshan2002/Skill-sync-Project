@@ -6,15 +6,15 @@ This is the main setup and verification guide for this local integrated-testing 
 
 | Workspace folder | Purpose |
 | --- | --- |
-| `project/frontend` | Laravel/Filament/Livewire website and local session identities |
-| `project/backend` | FastAPI business API and PostgreSQL business records |
+| `skill-sync/frontend` | Laravel/Filament/Livewire website and local session identities |
+| `skill-sync/backend` | FastAPI business API and PostgreSQL business records |
 | `skillsync-ai-model` | Classification, reliability predictions and scoring API |
 | `scripts` | Setup, startup and integration verification utilities |
 | `.integration-runtime` | Generated logs and checkout-specific Laravel cache paths |
 
 Laravel calls the business API server-side. Backend access tokens are not exposed to the browser. AI performs inference without database credentials.
 
-Specialized references: [model training](skillsync-ai-model/MODEL_TRAINING_STEPS.md) and [API contract](project/frontend/docs/api-contract.md). Developer instructions such as AGENTS.md remain separate.
+Specialized references: [model training](skillsync-ai-model/MODEL_TRAINING_STEPS.md) and [API contract](skill-sync/frontend/docs/api-contract.md). Developer instructions such as AGENTS.md remain separate.
 
 ## Start the application
 
@@ -50,7 +50,7 @@ Set-Location skillsync
 $skillSyncRoot = (Get-Location).Path
 ```
 
-The repository root must contain `project/`, `skillsync-ai-model/`, `scripts/` and `start-skillsync.ps1`. Publish the whole workspace rather than only the frontend.
+The repository root must contain `skill-sync/`, `skillsync-ai-model/`, `scripts/` and `start-skillsync.ps1`. Publish the whole workspace rather than only the frontend.
 
 The commands below use the original laptop's example path, `C:\Users\User\Desktop\test`. Replace that prefix with your actual clone location (the value of `$skillSyncRoot`) before running them. Start PostgreSQL before database setup and keep its administrator password available.
 
@@ -63,18 +63,18 @@ Before publishing, include source code, migrations, environment examples, depend
 Install PostgreSQL, Python 3.12/3.13, uv, PHP 8.4, Composer 2, Node.js 22.12+ or 24, and npm. PHP requires curl, OpenSSL, intl, mbstring, XML and PDO SQLite. Use your actual workspace path below. Preserve existing environment files and keep credentials private.
 
 ```powershell
-Set-Location 'C:\Users\User\Desktop\test\project\backend'
+Set-Location 'C:\Users\User\Desktop\test\skill-sync\backend'
 uv sync --locked
 Set-Location 'C:\Users\User\Desktop\test\skillsync-ai-model'
 uv sync --locked
-Set-Location 'C:\Users\User\Desktop\test\project\frontend'
+Set-Location 'C:\Users\User\Desktop\test\skill-sync\frontend'
 composer install
 npm.cmd ci
 if (-not (Test-Path -LiteralPath '.env')) {
     Copy-Item -LiteralPath '.env.example' -Destination '.env'
 }
 Set-Location 'C:\Users\User\Desktop\test'
-& '.\project\backend\.venv\Scripts\python.exe' .\scripts\setup_integration.py --admin-user postgres
+& '.\skill-sync\backend\.venv\Scripts\python.exe' .\scripts\setup_integration.py --admin-user postgres
 ```
 
 The command above is for a newly provisioned installation. Setup prompts for PostgreSQL administrator credentials and configures the restricted role and database below. It refuses to replace existing storage when using `--admin-user`. It also updates the absolute SQLite path and manages the isolated Laravel application key. Do not regenerate an existing key.
@@ -83,7 +83,7 @@ If this checkout already has valid integration database credentials, reuse them 
 
 ```powershell
 # From the workspace root, after moving or renaming this checkout.
-& '.\project\backend\.venv\Scripts\python.exe' .\scripts\setup_integration.py
+& '.\skill-sync\backend\.venv\Scripts\python.exe' .\scripts\setup_integration.py
 ```
 
 This checks the existing database identity, preserves its data and refreshes the frontend path. PostgreSQL must be running. If credentials are missing, restore the correct environment configuration; do not reset the database to bypass the setup refusal.
@@ -100,11 +100,11 @@ This checks the existing database identity, preserves its data and refreshes the
 Backend guards reject other database names. The original `skillsync` database is not used. Apply migrations and build assets:
 
 ```powershell
-Set-Location 'C:\Users\User\Desktop\test\project\backend'
+Set-Location 'C:\Users\User\Desktop\test\skill-sync\backend'
 .\.venv\Scripts\python.exe -m alembic upgrade head
 .\.venv\Scripts\python.exe -m app.cli seed-categories
 .\.venv\Scripts\python.exe -m app.cli create-admin
-Set-Location 'C:\Users\User\Desktop\test\project\frontend'
+Set-Location 'C:\Users\User\Desktop\test\skill-sync\frontend'
 php artisan config:clear
 php artisan migrate --no-interaction
 php artisan filament:assets
@@ -137,7 +137,7 @@ Set-Location 'C:\Users\User\Desktop\test\skillsync-ai-model'
 
 ```powershell
 # Terminal 2: business API
-Set-Location 'C:\Users\User\Desktop\test\project\backend'
+Set-Location 'C:\Users\User\Desktop\test\skill-sync\backend'
 .\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8101
 ```
 
@@ -147,7 +147,7 @@ Set-Location 'C:\Users\User\Desktop\test'
 New-Item -ItemType Directory -Path '.integration-runtime' -Force | Out-Null
 $env:APP_CONFIG_CACHE = Join-Path (Get-Location).Path '.integration-runtime\frontend-config.php'
 $env:APP_ROUTES_CACHE = Join-Path (Get-Location).Path '.integration-runtime\frontend-routes.php'
-Set-Location '.\project\frontend'
+Set-Location '.\skill-sync\frontend'
 php artisan serve --host=127.0.0.1 --port=8100
 ```
 
@@ -197,13 +197,13 @@ Stable categories: Carpentry `cat03`, Electrical `cat04`, Plumbing `cat08`, Weld
 ## Automated verification
 
 ```powershell
-# From project/backend
+# From skill-sync/backend
 .\.venv\Scripts\python.exe -m pytest -q -p no:cacheprovider
 # Optional integrated browser suite, also from backend
 $env:RUN_FRONTEND_BROWSER = '1'
 $env:PHP_BINARY = 'C:/php/php.exe'
 .\.venv\Scripts\python.exe -m pytest tests/test_frontend_browser.py -q -s -p no:cacheprovider
-# From project/frontend
+# From skill-sync/frontend
 php vendor/phpunit/phpunit/phpunit tests/Feature/ApiIntegrationTest.php --no-progress
 # From skillsync-ai-model
 .\.venv\Scripts\python.exe -m unittest test_service -v
@@ -222,7 +222,7 @@ Backend tests use disposable schemas in the integration database. Browser tests 
 | No workers match | Check approval, category, coverage, availability and rate filters. |
 | AI unavailable | Check artifacts, dependencies, port 8102 and AI health. |
 | Workspace moved | Check absolute SQLite path and environment settings; preserve existing data. |
-| Frontend must use its isolated integration-testing.sqlite store | Check `DB_DATABASE` in `project/frontend/.env`. After a folder rename, run the existing-installation setup command above without `--admin-user`, then rerun launcher `-Check`. |
+| Frontend must use its isolated integration-testing.sqlite store | Check `DB_DATABASE` in `skill-sync/frontend/.env`. After a folder rename, run the existing-installation setup command above without `--admin-user`, then rerun launcher `-Check`. |
 | Stale Laravel configuration | With intended environment/cache paths selected, run `php artisan config:clear` and `php artisan route:clear`, then restart. |
 
 Keep source, migrations, lockfiles, environment configuration, active databases and saved model artifacts. Back up persistent data before storage changes. The launcher recreates `.integration-runtime` for logs/cache paths; that folder is not the business database.
@@ -230,7 +230,7 @@ Keep source, migrations, lockfiles, environment configuration, active databases 
 ## Logs, backups and deployment scope
 
 - Launcher logs: `.integration-runtime/frontend.log`, `backend.log` and `ai.log`.
-- Laravel logs: `project/frontend/storage/logs/`. Logs can contain account or request information; review them before sharing.
+- Laravel logs: `skill-sync/frontend/storage/logs/`. Logs can contain account or request information; review them before sharing.
 - Back up PostgreSQL business data, the frontend SQLite database, environment files (including the existing Laravel key), uploaded files and model artifacts. Stop writes or use database-supported backup tools for a consistent backup.
 - Keep `composer.lock`, both `uv.lock` files and `package-lock.json` so installations use the recorded dependency versions.
 - Local virtual environments may need recreation after moving the checkout; run `uv sync --locked` from each Python project. Do not copy a virtual environment between operating systems.

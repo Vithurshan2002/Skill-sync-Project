@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BACKEND_DIR = ROOT / "project" / "backend"
+BACKEND_DIR = ROOT / "skill-sync" / "backend"
 sys.path.insert(0, str(BACKEND_DIR))
 
 from sqlalchemy import select

@@ -1,6 +1,6 @@
 """Provision only the isolated SkillSync test database and configure this checkout.
 
-Run with project/backend/.venv/Scripts/python.exe. Existing backend .env
+Run with skill-sync/backend/.venv/Scripts/python.exe. Existing backend .env
 credentials are used only against PostgreSQL's maintenance database to create a
 new restricted role and database. Original application databases are never opened.
 """
@@ -16,8 +16,8 @@ from psycopg import sql
 from dotenv import dotenv_values
 
 ROOT = Path(__file__).resolve().parents[1]
-BACKEND = ROOT / "project" / "backend"
-FRONTEND = ROOT / "project" / "frontend"
+BACKEND = ROOT / "skill-sync" / "backend"
+FRONTEND = ROOT / "skill-sync" / "frontend"
 DATABASE = "skillsync_integration_test"
 ROLE = "skillsync_integration_app"
 
