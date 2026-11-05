@@ -14,7 +14,7 @@ This is the main setup and verification guide for this local integrated-testing 
 
 Laravel calls the business API server-side. Backend access tokens are not exposed to the browser. AI performs inference without database credentials.
 
-Specialized references: [model training](../skillsync-ai-model/MODEL_TRAINING_STEPS.md) and [API contract](frontend/docs/api-contract.md). Developer instructions such as AGENTS.md remain separate.
+Specialized references: [model training](skillsync-ai-model/MODEL_TRAINING_STEPS.md) and [API contract](project/frontend/docs/api-contract.md). Developer instructions such as AGENTS.md remain separate.
 
 ## Start the application
 

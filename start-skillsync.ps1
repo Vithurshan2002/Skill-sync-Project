@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 $ProjectRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $BackendPython = Join-Path $ProjectRoot "project\backend\.venv\Scripts\python.exe"
 if (-not (Test-Path -LiteralPath $BackendPython)) {
-    throw "Backend Python environment is missing. Follow project/README.md."
+    throw "Backend Python environment is missing. Follow README.md."
 }
 $Runner = Join-Path $ProjectRoot "scripts\run_integration.py"
 $RunnerArguments = @($Runner)

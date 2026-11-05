@@ -1,6 +1,6 @@
 # SkillSync AI: Model Training Steps
 
-For application setup, startup and verification, see the [main SkillSync guide](../project/README.md).
+For application setup, startup and verification, see the [main SkillSync guide](../README.md).
 
 This guide explains the training process implemented in this folder in simple language. It describes the code and current CSV files; it does not claim that training was run again or report new accuracy results.
 
